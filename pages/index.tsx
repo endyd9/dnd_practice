@@ -1,41 +1,38 @@
-import type { NextPage } from 'next'
+import type {NextPage} from 'next'
 import styles from '../styles/Home.module.css'
-import { useEffect, useState } from 'react';
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import {useEffect, useState} from 'react';
+import {DragDropContext, DropResult} from 'react-beautiful-dnd';
+import DroppableComponent from "../components/droppable";
 
 const Home: NextPage = () => {
-    const startItems = [...Array(8)].map((_, i) => ({ id: `${i}${i}${i}`, content: `item-${i}` }));
-    const [items, setItems] = useState<any[]>(startItems.slice(0,4))
-    const [items2, setItems2] = useState<any[]>(startItems.slice(4,8))
+    const startItems = [...Array(8)].map((_, i) => ({id: `${i}${i}${i}`, content: `item-${i}`}));
+    const [droppable, setDroppable] = useState<any[]>([{
+        idx:0,
+        id: "droppable",
+        content: startItems.slice(0, 4)
+    }, {idx:1, id: "droppable2", content: startItems.slice(4, 8)}])
 
-    const onDragEnd = ({ source, destination }: DropResult) => {
+    const onDragEnd = ({source, destination, }: DropResult) => {
         if (!destination) return;
-
+        console.log(source, destination)
         let newItems
         let targetItem
-
-        if(source.droppableId === "droppable"){
-            [targetItem] = items.splice(source.index, 1)
-        }else {
-            [targetItem] = items2.splice(source.index, 1)
-        }
-
-        if(destination.droppableId === "droppable"){
-            newItems = items.map(e => e)
-            newItems.splice(destination.index, 0, targetItem);
-            setItems(newItems);
-        }else{
-            newItems = items2.map(e => e)
-            newItems.splice(destination.index, 0, targetItem);
-            setItems2(newItems);
-        }
-
-
+        const _droppable = droppable.map(items => {
+            if (source.droppableId === items.id) {
+                [targetItem] = items.content.splice(source.index, 1)
+            }
+            return items
+        })
+        _droppable.map(items => {
+            if (destination.droppableId === items.id) {
+                newItems = items.content.map(e => e)
+                newItems.splice(destination.index, 0, targetItem);
+                items.content = newItems
+                return items
+            }
+        })
+        setDroppable(_droppable)
     };
-
-    // newItems = items.map(e => e)
-    // const [targetItem] = newItems.splice(source.index, 1);
-    // newItems.splice(destination.index, 0, targetItem);
 
     const [enabled, setEnabled] = useState(false);
 
@@ -55,49 +52,18 @@ const Home: NextPage = () => {
 
     return (
         <div className={styles.container}>
-        <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="droppable">
-                {(provided) => (
-                    <div className={styles.droppable} ref={provided.innerRef} {...provided.droppableProps}>
-                        {items.map((item, index) => (
-                            <Draggable key={item.id} draggableId={item.id} index={index}>
-                                {(provided) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                    >
-                                        {item.content}
-                                    </div>
-                                )}
-                            </Draggable>
-                        ))}
-                        {provided.placeholder}
+            <DragDropContext onDragEnd={onDragEnd}>
+                {droppable?.map((e) => (
+                    <div key={e.id}>
+                        <DroppableComponent droppableId={e.id} items={e.content}/>
                     </div>
-                )}
-            </Droppable>
-
-            <Droppable droppableId="droppable2">
-                {(provided) => (
-                    <div className={styles.droppable} ref={provided.innerRef} {...provided.droppableProps}>
-                        {items2.map((item, index) => (
-                            <Draggable key={item.id+"2"} draggableId={item.id+"2"} index={index}>
-                                {(provided) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                    >
-                                        {item.content}
-                                    </div>
-                                )}
-                            </Draggable>
-                        ))}
-                        {provided.placeholder}
-                    </div>
-                )}
-            </Droppable>
-        </DragDropContext>
+                ))}
+            </DragDropContext>
+            <button onClick={() => {
+                const nextIdx = droppable.length + 1
+                setDroppable((prev) => [...prev, {idx:prev.lengh-1, id: `draggable${nextIdx}`, content: []}])
+            }}>+
+            </button>
         </div>
     );
 }
