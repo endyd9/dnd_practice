@@ -14,8 +14,7 @@ const Home: NextPage = () => {
 
     const onDragEnd = ({source, destination, }: DropResult) => {
         if (!destination) return;
-        console.log(source, destination)
-        let newItems
+
         let targetItem
         const _droppable = droppable.map(items => {
             if (source.droppableId === items.id) {
@@ -25,7 +24,7 @@ const Home: NextPage = () => {
         })
         _droppable.map(items => {
             if (destination.droppableId === items.id) {
-                newItems = items.content.map(e => e)
+                const newItems = items.content.map(e => e)
                 newItems.splice(destination.index, 0, targetItem);
                 items.content = newItems
                 return items
@@ -33,6 +32,15 @@ const Home: NextPage = () => {
         })
         setDroppable(_droppable)
     };
+
+    const onAddColumn = (columnId, newColumn) => {
+        setDroppable(() => droppable.map(column => {
+            if (column.id === columnId) {
+                column.content.push(newColumn)
+            }
+            return column
+        }))
+    }
 
     const [enabled, setEnabled] = useState(false);
 
@@ -55,7 +63,7 @@ const Home: NextPage = () => {
             <DragDropContext onDragEnd={onDragEnd}>
                 {droppable?.map((e) => (
                     <div key={e.id}>
-                        <DroppableComponent droppableId={e.id} items={e.content}/>
+                        <DroppableComponent droppableId={e.id} items={e.content} addColumn={onAddColumn}/>
                     </div>
                 ))}
             </DragDropContext>
