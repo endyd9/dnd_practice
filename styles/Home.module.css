@@ -9,17 +9,27 @@
   padding: 0;
   column-gap: 100px;
   overflow: scroll;
+  background-color: #b6d0f1;
+}
+.boards {
+  display: flex;
+  flex-direction: row;
+  gap:100px;
 }
 
-.droppable {
+
+.board {
   background-color: rgb(137, 163, 240, 10);
   padding: 10px 30px;
   min-height: 100px;
+  max-height: 300px;
   min-width: 250px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap:5px;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .main {

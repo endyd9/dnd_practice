@@ -2,18 +2,20 @@ import type {NextPage} from 'next'
 import styles from '../styles/Home.module.css'
 import {useEffect, useState} from 'react';
 import {DragDropContext, DropResult} from 'react-beautiful-dnd';
-import DroppableComponent from "../components/droppable";
+import Boards from "../components/boards";
 
 const Home: NextPage = () => {
-    const startItems = [...Array(8)].map((_, i) => ({id: `${i}${i}${i}`, content: `item-${i}`}));
+    const startItems = [...Array(8)].map((_, i) => ({id: `${i}`, content: `item-${i}`}));
     const [droppable, setDroppable] = useState<any[]>([{
-        idx:0,
-        id: "droppable",
+        idx: 0,
+        id: "board0",
         content: startItems.slice(0, 4)
-    }, {idx:1, id: "droppable2", content: startItems.slice(4, 8)}])
+    }, {idx: 1, id: "board1", content: startItems.slice(4, 8)}])
 
-    const onDragEnd = ({source, destination, }: DropResult) => {
+
+    const onDragEnd = ({source, destination, draggableId}: DropResult) => {
         if (!destination) return;
+        console.log(draggableId)
 
         let targetItem
         const _droppable = droppable.map(items => {
@@ -43,7 +45,6 @@ const Home: NextPage = () => {
     }
 
     const [enabled, setEnabled] = useState(false);
-
     useEffect(() => {
         const animation = requestAnimationFrame(() => setEnabled(true));
 
@@ -52,8 +53,6 @@ const Home: NextPage = () => {
             setEnabled(false);
         };
     }, []);
-
-
     if (!enabled) {
         return null;
     }
@@ -63,14 +62,16 @@ const Home: NextPage = () => {
             <DragDropContext onDragEnd={onDragEnd}>
                 {droppable?.map((e) => (
                     <div key={e.id}>
-                        <DroppableComponent droppableId={e.id} items={e.content} addColumn={onAddColumn}/>
+                        <Boards droppableId={e.id} items={e.content} addColumn={onAddColumn} idx={e.idx}/>
                     </div>
                 ))}
             </DragDropContext>
             <button onClick={() => {
                 const nextIdx = droppable.length + 1
-                setDroppable((prev) => [...prev, {idx:prev.lengh-1, id: `draggable${nextIdx}`, content: []}])
-            }}>+
+                console.log(nextIdx)
+                setDroppable((prev) => [...prev, {idx: nextIdx, id: `board${nextIdx}`, content: []}])
+            }}>
+                +
             </button>
         </div>
     );
